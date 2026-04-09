@@ -1,24 +1,12 @@
 #include "lru.h"
 #include <iostream>
+#include <unordered_map>
 
 using namespace std;
 
 pageNode *head = nullptr;
 pageNode *tail = nullptr;
 
-pair<bool, pageNode*> searchPage(const int &pageNumber)
-{
-    pageNode *tempHead{head};
-    while (tempHead != nullptr)
-    {
-        if (tempHead->pageNumber == pageNumber)
-        {
-            return {true, tempHead};
-        }
-        tempHead = tempHead->next;
-    }
-    return {false, nullptr};
-}
 void printList()
 {
     pageNode *temp = head;
@@ -46,7 +34,7 @@ void printReferenceList(const int *const referenceList, const int &pageCount)
     }
     cout << '\n';
 }
-void evict_And_Add_Page(const int &pageNumber)
+pageNode* evict_And_Add_Page(const int &pageNumber, unordered_map<int, pageNode*>& hashMap)
 {
     pageNode *createdNode{new(nothrow) pageNode(pageNumber)};
     
@@ -59,11 +47,14 @@ void evict_And_Add_Page(const int &pageNumber)
     tail->next = createdNode;
     tail = createdNode;
     
+    hashMap.erase(head->pageNumber);
     head = head->next;
     delete head->previous;
     head->previous = nullptr;
+    
+    return createdNode;
 }
-void add_Page_To_Frame(const int &pageNumber)
+pageNode* add_Page_To_Frame(const int &pageNumber)
 {
     pageNode *createdNode{new(nothrow) pageNode(pageNumber)};
     if(createdNode == nullptr)
@@ -75,13 +66,15 @@ void add_Page_To_Frame(const int &pageNumber)
     {
         head = createdNode;
         tail = createdNode;
-        return;
+        return createdNode;
     }
     createdNode->previous = tail;
     tail->next = createdNode;
     tail = createdNode;
+
+    return createdNode;
 }
-void updateNodePosition(pageNode* nodePtr)
+pageNode* updateNodePosition(pageNode* nodePtr)
 {
     if ((nodePtr)->next && (nodePtr)->previous)
     {
@@ -106,6 +99,7 @@ void updateNodePosition(pageNode* nodePtr)
     {
         //Referenced Page is at the Tail of the LRU List i.e MRU. Thus no-operation required
     }
+    return tail;
 }
 void freeListMemory()
 {
