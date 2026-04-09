@@ -19,7 +19,7 @@ As a result, searching for a page requires a linear scan of the linked list.
 - **Time Complexity per access**: $O(K)$ where $K$ is the number of allotted page frames.
 - **Overall Time Complexity**: $O(N \times K)$ or roughly **$O(N^2)$** where $N$ is the total number of page accesses in the reference string, since locating nodes scales linearly.
 
-*Note: For a fully optimized LRU (which runs in $O(N)$), a Hash Map is typically paired with the Doubly Linked List.*
+Note: For a fully optimized LRU (which runs in $O(N)$), a Hash Map is typically paired with the Doubly Linked List.
 
 ## Miss Tracking
 The simulation accurately categorizes cache misses:
