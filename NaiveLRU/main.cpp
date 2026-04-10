@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, const int &pageCount, Misses& missData, int& distinctPageAccesses)
+void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, const int &pageCount, Misses& missData)
 {
     int pageFramesUsed{};
     int i {};
@@ -22,7 +22,6 @@ void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, c
 
         ++(missData.compulsoryMiss);
         ++pageFramesUsed;
-        ++distinctPageAccesses;
 
         cout << "Current LRU List: ";
         printList();
@@ -47,7 +46,6 @@ void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, c
                 ++(missData.compulsoryMiss);
                 ++pageFramesUsed;
             }
-            ++distinctPageAccesses;
         }
         cout << "Current LRU List: ";
         printList();
@@ -83,10 +81,8 @@ int main()
     printReferenceList(referenceList, pageCount);
 
     Misses missData {};
-    int distinctPageAccesses {};
-    simulateLRU(pageFramesAlloted, referenceList, pageCount, missData, distinctPageAccesses);
 
-    cout << "Number of distince Pages accessed : " << distinctPageAccesses << '\n';
+    simulateLRU(pageFramesAlloted, referenceList, pageCount, missData);
     
     cout << "Want Miss/Hit Ratio? (y/n) : ";
     char choice {};
