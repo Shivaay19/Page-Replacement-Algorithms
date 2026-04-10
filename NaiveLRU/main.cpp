@@ -1,55 +1,47 @@
 #include "lru.h"
 #include <iostream>
-#include <algorithm>
+#include <unordered_set>
 
 using namespace std;
 
 void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, const int &pageCount, Misses& missData)
 {
-    int pageFramesUsed{};
-    int i {};
-    for (i = 0; i < min(pageFramesAlloted, pageCount); ++i)
+    int pageFramesUsed {};
+    unordered_set<int> seenPages {};
+    for (int i = 0; i < pageCount; ++i)
     {
         pair<bool, pageNode *> status{searchPage(referenceList[i])};
+
         if (status.first)
         {
-            updateNodePosition(status.second);
-            cout << "Current LRU List: ";
-            printList();
-            continue;
-        }
-        add_Page_To_Frame(referenceList[i]);
-
-        ++(missData.compulsoryMiss);
-        ++pageFramesUsed;
-
-        cout << "Current LRU List: ";
-        printList();
-    }
-    while(i < pageCount)
-    {
-        pair<bool, pageNode*> status{searchPage(referenceList[i])};
-        if (status.first)
-        {
+            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
             updateNodePosition(status.second);
         }
         else
         {
+            if(seenPages.find(referenceList[i]) == seenPages.end())
+            {
+                cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
+                seenPages.insert(referenceList[i]);
+                ++(missData.compulsoryMiss);
+            }
+            else
+            {
+                cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Capacity Miss\n";
+                ++(missData.capacityMiss);
+            }
             if (pageFramesUsed == pageFramesAlloted)
             {
                 evict_And_Add_Page(referenceList[i]);
-                ++(missData.capacityMiss);
             }
             else
             {
                 add_Page_To_Frame(referenceList[i]);
-                ++(missData.compulsoryMiss);
                 ++pageFramesUsed;
             }
         }
         cout << "Current LRU List: ";
         printList();
-        ++i;
     }
 }
 

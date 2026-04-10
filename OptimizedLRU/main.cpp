@@ -1,67 +1,21 @@
-#include "lru.h"
 #include <iostream>
-#include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
+#include "lru.h"
 
 using namespace std;
 
 void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, const int &pageCount, Misses& missData, unordered_map<int, pageNode*>& hashMap)
 {
-    int pageFramesUsed{};
     unordered_set<int> seenPages {};
-    int i {};
-    for (i = 0; i < min(pageFramesAlloted, pageCount); ++i)
-    {
-        pair<bool, pageNode *> status{false, nullptr};
-        auto iterator {hashMap.find(referenceList[i])};
-        if(iterator != hashMap.end())
-        {
-            status.first = true;
-            status.second = hashMap[referenceList[i]];
-        }
-        if (status.first)
-        {
-            hashMap[referenceList[i]] = updateNodePosition(status.second);
-            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
-            cout << "Current LRU List: ";
-            printList();
-            continue;
-        }
-        hashMap[referenceList[i]] = add_Page_To_Frame(referenceList[i]);
 
-        cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
-        ++(missData.compulsoryMiss);
-        ++pageFramesUsed;
-
-        cout << "Current LRU List: ";
-        printList();
-    }
-    while(i < pageCount)
+    for (int i = 0; i < pageCount; ++i)
     {
-        pair<bool, pageNode *> status{false, nullptr};
+        cout << "Reference made to Page Number : " << referenceList[i] << '\n';
+        
         auto iterator {hashMap.find(referenceList[i])};
-        if(iterator != hashMap.end())
+        if(iterator == hashMap.end())
         {
-            status.first = true;
-            status.second = hashMap[referenceList[i]];
-        }
-        if (status.first)
-        {
-            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
-            hashMap[referenceList[i]] = updateNodePosition(status.second);
-        }
-        else
-        {
-            if (pageFramesUsed == pageFramesAlloted)
-            {
-                hashMap[referenceList[i]] = evict_And_Add_Page(referenceList[i], hashMap);
-            }
-            else
-            {
-                hashMap[referenceList[i]] = add_Page_To_Frame(referenceList[i]);
-                ++pageFramesUsed;
-            }
             if(seenPages.find(referenceList[i]) == seenPages.end())
             {
                 cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
@@ -73,10 +27,22 @@ void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, c
                 cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Capacity Miss\n";
                 ++(missData.capacityMiss);
             }
+            if (hashMap.size() == pageFramesAlloted)
+            {
+                hashMap[referenceList[i]] = evict_And_Add_Page(referenceList[i], hashMap);
+            }
+            else
+            {
+                hashMap[referenceList[i]] = add_Page_To_Frame(referenceList[i]);
+            }
+        }
+        else
+        {
+            hashMap[referenceList[i]] = updateNodePosition(hashMap[referenceList[i]]);
+            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
         }
         cout << "Current LRU List: ";
         printList();
-        ++i;
     }
 }
 int main()

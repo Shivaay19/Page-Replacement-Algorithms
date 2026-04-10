@@ -12,19 +12,11 @@ void simulateFIFO(const int &pageFramesAlloted, const int *const referenceList, 
 
     for (int i = 0; i < pageCount; ++i)
     {
+        cout << "Reference made to Page Number : " << referenceList[i] << '\n';
+        
         auto iterator {hashMap.find(referenceList[i])};
         if(iterator == hashMap.end())
         {
-            if(pageFramesAlloted == pageFramesUsed)
-            {
-                hashMap[referenceList[i]] = evict_and_add(referenceList[i], hashMap);
-            }
-            else
-            {
-                hashMap[referenceList[i]] = createList(referenceList[i]);
-                ++pageFramesUsed;
-            }
-
             if(seenPages.find(referenceList[i]) == seenPages.end())
             {
                 cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
@@ -35,6 +27,15 @@ void simulateFIFO(const int &pageFramesAlloted, const int *const referenceList, 
             {
                 cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Capacity Miss\n";
                 ++(missData.capacityMiss);
+            }
+            if(pageFramesAlloted == pageFramesUsed)
+            {
+                hashMap[referenceList[i]] = evict_and_add(referenceList[i], hashMap);
+            }
+            else
+            {
+                hashMap[referenceList[i]] = createList(referenceList[i]);
+                ++pageFramesUsed;
             }
         }
         else

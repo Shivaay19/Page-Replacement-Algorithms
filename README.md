@@ -6,7 +6,9 @@ Page replacement algorithms decide which memory pages to page out (swap out, wri
 
 ## Current Implementations
 
-* **[Naive LRU](./Naive%20LRU/)** - A simple approach to the Least Recently Used (LRU) algorithm.
+* **[FIFO](./FIFO/)** - First-In First-Out page replacement algorithm.
+* **[Naive LRU](./NaiveLRU/)** - A simple Least Recently Used (LRU) implementation.
+* **[Optimized LRU](./OptimizedLRU/)** - An $O(1)$ implementation of LRU using a Hash Map and Doubly Linked List.
 
 ## Getting Started
 
@@ -14,7 +16,7 @@ Each algorithm is contained within its own subdirectory alongside its respective
 
 ```bash
 # Example for Naive LRU
-cd "Naive LRU"
+cd "NaiveLRU"
 g++ -std=c++17 main.cpp lru.cpp -o lru_sim
 ./lru_sim
 ```

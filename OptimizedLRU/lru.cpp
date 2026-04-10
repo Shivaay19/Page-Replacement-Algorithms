@@ -12,12 +12,16 @@ void printList()
     pageNode *temp = head;
     while (temp != nullptr)
     {
-        cout << temp->pageNumber << "  ";
+        cout << temp->pageNumber << " ";
         if(temp == head)
         {
-            cout << "(LRU)  ";
+            cout << "(LRU) ";
         }
-        else if(temp->next == nullptr)
+        if(temp->next)
+        {
+            cout << " --> ";
+        }
+        else if(temp->next == nullptr && temp != head)
         {
             cout << "(MRU)  ";
         }
@@ -47,6 +51,8 @@ pageNode* evict_And_Add_Page(const int &pageNumber, unordered_map<int, pageNode*
     tail->next = createdNode;
     tail = createdNode;
     
+    cout << "Page Number : " << head->pageNumber << " --> Evicted\n";
+
     hashMap.erase(head->pageNumber);
     head = head->next;
     delete head->previous;

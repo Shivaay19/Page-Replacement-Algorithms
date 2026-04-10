@@ -12,10 +12,14 @@ void printList()
     pageNode *temp = head;
     while (temp != nullptr)
     {
-        cout << temp->pageNumber << "  ";
+        cout << temp->pageNumber;
         if(temp == head)
         {
-            cout << "(First In)    ";
+            cout << " (First In) ";
+        }
+        if(temp->next)
+        {
+            cout << " --> ";
         }
         temp = temp->next;
     }
@@ -64,6 +68,9 @@ pageNode* evict_and_add(const int& pageNumber, unordered_map<int, pageNode*>& ha
     tail->next = createdNode;
     createdNode->previous = tail;
     tail = createdNode;
+
+    cout << "Page Number : " << head->pageNumber << " --> Evicted\n";
+
     hashMap.erase(head->pageNumber);
     head = head->next;
     delete head->previous;

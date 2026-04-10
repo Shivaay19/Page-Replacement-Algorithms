@@ -24,18 +24,22 @@ void printList()
     pageNode *temp = head;
     while (temp != nullptr)
     {
-        cout << temp->pageNumber << "  ";
+        cout << temp->pageNumber << " ";
         if(temp == head)
         {
-            cout << "(LRU)  ";
+            cout << "(LRU) ";
         }
-        else if(temp->next == nullptr)
+        if(temp->next)
+        {
+            cout << " --> ";
+        }
+        else if(temp->next == nullptr && temp != head)
         {
             cout << "(MRU)  ";
         }
         temp = temp->next;
     }
-    cout << '\n';
+    cout << "\n\n";
 }
 void printReferenceList(const int *const referenceList, const int &pageCount)
 {
@@ -44,7 +48,7 @@ void printReferenceList(const int *const referenceList, const int &pageCount)
     {
         cout << referenceList[i] << "  ";
     }
-    cout << '\n';
+    cout << "\n\n";
 }
 void evict_And_Add_Page(const int &pageNumber)
 {
@@ -59,6 +63,8 @@ void evict_And_Add_Page(const int &pageNumber)
     tail->next = createdNode;
     tail = createdNode;
     
+    cout << "Page Number : " << head->pageNumber << " --> Evicted\n";
+
     head = head->next;
     delete head->previous;
     head->previous = nullptr;
