@@ -2,12 +2,14 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
-void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, const int &pageCount, Misses& missData, int& distinctPageAccesses, unordered_map<int, pageNode*>& hashMap)
+void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, const int &pageCount, Misses& missData, unordered_map<int, pageNode*>& hashMap)
 {
     int pageFramesUsed{};
+    unordered_set<int> seenPages {};
     int i {};
     for (i = 0; i < min(pageFramesAlloted, pageCount); ++i)
     {
@@ -21,15 +23,16 @@ void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, c
         if (status.first)
         {
             hashMap[referenceList[i]] = updateNodePosition(status.second);
+            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
             cout << "Current LRU List: ";
             printList();
             continue;
         }
         hashMap[referenceList[i]] = add_Page_To_Frame(referenceList[i]);
 
+        cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
         ++(missData.compulsoryMiss);
         ++pageFramesUsed;
-        ++distinctPageAccesses;
 
         cout << "Current LRU List: ";
         printList();
@@ -45,6 +48,7 @@ void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, c
         }
         if (status.first)
         {
+            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
             hashMap[referenceList[i]] = updateNodePosition(status.second);
         }
         else
@@ -52,15 +56,23 @@ void simulateLRU(const int &pageFramesAlloted, const int *const referenceList, c
             if (pageFramesUsed == pageFramesAlloted)
             {
                 hashMap[referenceList[i]] = evict_And_Add_Page(referenceList[i], hashMap);
-                ++(missData.capacityMiss);
             }
             else
             {
                 hashMap[referenceList[i]] = add_Page_To_Frame(referenceList[i]);
-                ++(missData.compulsoryMiss);
                 ++pageFramesUsed;
             }
-            ++distinctPageAccesses;
+            if(seenPages.find(referenceList[i]) == seenPages.end())
+            {
+                cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
+                seenPages.insert(referenceList[i]);
+                ++(missData.compulsoryMiss);
+            }
+            else
+            {
+                cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Capacity Miss\n";
+                ++(missData.capacityMiss);
+            }
         }
         cout << "Current LRU List: ";
         printList();
@@ -96,12 +108,9 @@ int main()
     printReferenceList(referenceList, pageCount);
 
     Misses missData {};
-    int distinctPageAccesses {};
     unordered_map<int, pageNode*> hashMap {};
 
-    simulateLRU(pageFramesAlloted, referenceList, pageCount, missData, distinctPageAccesses, hashMap);
-
-    cout << "Number of distince Pages accessed : " << distinctPageAccesses << '\n';
+    simulateLRU(pageFramesAlloted, referenceList, pageCount, missData, hashMap);
     
     cout << "Want Miss/Hit Ratio? (y/n) : ";
     char choice {};
@@ -109,7 +118,7 @@ int main()
 
     while(true)
     {
-        if(choice == 'y')
+        if(choice == 'y' || choice == 'Y')
         {
             cout << "Compulsory Misses : " << missData.compulsoryMiss << '\n';
             cout << "Capacity Misses : " << missData.capacityMiss << '\n';
@@ -118,7 +127,7 @@ int main()
             cout << "Calculate Hit Ratio Yourself :) (Hint : Subtract Miss Ratio from 1)\n";
             break;
         }
-        else if(choice == 'n') break;
+        else if(choice == 'n' || choice == 'N') break;
         else
         {
             cout << "Invalid Choice! Please Choose (y/n).\n";

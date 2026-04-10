@@ -23,7 +23,7 @@ void printList()
         }
         temp = temp->next;
     }
-    cout << '\n';
+    cout << "\n\n";
 }
 void printReferenceList(const int *const referenceList, const int &pageCount)
 {
@@ -32,7 +32,7 @@ void printReferenceList(const int *const referenceList, const int &pageCount)
     {
         cout << referenceList[i] << "  ";
     }
-    cout << '\n';
+    cout << "\n\n";
 }
 pageNode* evict_And_Add_Page(const int &pageNumber, unordered_map<int, pageNode*>& hashMap)
 {
