@@ -1,0 +1,109 @@
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include "clock.h"
+
+using namespace std;
+
+void simulateClock(int pageFramesAlloted, int pageCount, const int* referenceList, Misses& missData, unordered_map<int, pageNode*>& hashMap)
+{
+    unordered_set<int> seenPages {};
+
+    for(int i = 0; i < pageCount; ++i)
+    {
+        cout << "Reference made to Page Number : " << referenceList[i] << '\n';
+
+        auto iterator {hashMap.find(referenceList[i])};
+        if(iterator == hashMap.end())
+        {
+            if(seenPages.find(referenceList[i]) == seenPages.end())
+            {
+                cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Compulsory Miss\n";
+                seenPages.insert(referenceList[i]);
+                ++(missData.compulsoryMiss);
+            }
+            else
+            {
+                cout << "Page Number : " << referenceList[i] << " --> Page Miss --> Capacity Miss\n";
+                ++(missData.capacityMiss);
+            }
+
+            if(hashMap.size() == pageFramesAlloted)
+            {
+                hashMap[referenceList[i]] = evictAndAdd(referenceList[i], hashMap);
+            }
+            else
+            {
+                hashMap[referenceList[i]] = addToList(referenceList[i]);
+            }
+        }
+        else
+        {
+            cout << "Page Number : " << referenceList[i] << " --> Page Hit\n";
+            iterator->second->referenceBit = true;
+        }
+        cout << "Current Circular List: ";
+        printList();
+    }
+}
+
+int main()
+{
+    int pageFramesAlloted{};
+    int pageCount{};
+
+    cout << "Enter the Number of Physical Page Frames available\n";
+    cin >> pageFramesAlloted;
+
+    cout << "Enter the Number of Pages Referenced\n";
+    cin >> pageCount;
+    
+    if(pageFramesAlloted <= 0 || pageCount <= 0)
+    {
+        cerr << "Invalid Request\n";
+        exit(1);
+    }
+
+    int *referenceList{new int[pageCount]};
+
+    for (int i = 0; i < pageCount; ++i)
+    {
+        cout << "Enter the Page Number Referenced : ";
+        cin >> referenceList[i];
+    }
+    cout << '\n';
+
+    printReferenceList(referenceList, pageCount);
+
+    Misses missData {};
+    unordered_map<int, pageNode*> hashMap {};
+
+    simulateClock(pageFramesAlloted, pageCount, referenceList, missData, hashMap);
+    
+    cout << "Want Miss/Hit Ratio? (y/n) : ";
+    char choice {};
+    cin >> choice;
+
+    while(true)
+    {
+        if(choice == 'y')
+        {
+            cout << "Compulsory Misses : " << missData.compulsoryMiss << '\n';
+            cout << "Capacity Misses : " << missData.capacityMiss << '\n';
+            cout << "Total Page Access : " << pageCount << '\n';
+            cout << "Miss Ratio : " << (static_cast<double>(missData.compulsoryMiss) + static_cast<double>(missData.capacityMiss)) / pageCount << '\n';
+            cout << "Calculate Hit Ratio Yourself :) (Hint : Subtract Miss Ratio from 1)\n";
+            break;
+        }
+        else if(choice == 'n') break;
+        else
+        {
+            cout << "Invalid Choice! Please Choose (y/n).\n";
+            cin >> choice;
+        }
+    }
+
+    freeListMemory();
+    delete[] referenceList;
+    return 0;
+}
